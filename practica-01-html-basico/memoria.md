@@ -4,3 +4,7 @@
 * *Esto es negrita* *
 * Esto es cursiva*
   ~~Esto esta tachado~~
+Listas sin orden:
+- Elemento 1
+- Elemento 2
+- Elemento 3
