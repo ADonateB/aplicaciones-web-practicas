@@ -8,3 +8,7 @@ Listas sin orden:
 - Elemento 1
 - Elemento 2
 - Elemento 3
+Lista numerada:
+1. Primer paso
+2. Segundo paso
+3. Tercer paso
