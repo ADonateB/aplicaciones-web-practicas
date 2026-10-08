@@ -19,4 +19,13 @@ Aplicaciones WEB
 
 8 Ahora usamos cd /etc/netplan para ir a ese directorio y usamos sudo nano /etc/netplan/50-clou-init.yaml
 
-9 Y ahi ponemos una dirección IP y poniendo tambien false en dhc
+9 Y ahi ponemos una dirección IP y poniendo tambien false en dhc, addresses:, y poner la dirección IP que pide (empezando poniendo - debajo de la segunda d)
+
+(Apache2: es un servidor web HTTP de código abierto)
+
+10 Apache2 se instala con el comando sudo apt install apache2
+
+11 Ficheros y directodios más importantes
+Ports.conf: es para habilitar los puertos (como el 80 que esta por defecto) para que se puedan usar
+Sites-Available: donde hacemos los ficheros ya que estan disponibles
+Sites-Enabled: donde estan los sitios habilitados/funcionando
