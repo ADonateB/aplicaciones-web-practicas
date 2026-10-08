@@ -1,0 +1,22 @@
+Aplicaciones WEB
+
+1. Usamos un SO de ubuntu de 64 bits
+
+2 Ponemos 2 CPUs, 2GB ram y 25GB almacenamiento
+
+3 Mientras se instala ubuntu ponemos el idioma del sistema
+
+4 Elegimos el nombre de usuario
+
+5 Luego ponemos en el apartado perfil de usuario el nombre del servidor, del host y la contraseña
+
+6 Hacemos los pasos para continuar la instalación poniendo SSH para instalar y cuando acabe reinicias la maquina virtual
+
+(SSH: protocolo de red que permite conectarse y administrar servidores y ordenadores de forma remota a través de un canal completamente cifrado y seguro)
+(esto es para istalar ssh: sudo apt install openssh-server) (Y esto es para activarlo y arrancarlo sudo systemctl enable ssh sudo systemctl start ssh)
+
+7 Cuando ya esta todo instalado configuramos entrando en parametros, red, y configurando el adaptador 2 de solo anfitrion
+
+8 Ahora usamos cd /etc/netplan para ir a ese directorio y usamos sudo nano /etc/netplan/50-clou-init.yaml
+
+9 Y ahi ponemos una dirección IP y poniendo tambien false en dhc
