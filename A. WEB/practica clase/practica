@@ -1,1 +1,40 @@
+Pasos de la práctica
 
+1. Usamos los siguientes comandos para crear las carpetas y las páginas que vamos a usar:
+sudo mkdir -p /var/www/smr/web /var/www/smr/intranet
+echo "<h1>Bienvenidos a SMR</h1>" | sudo tee /var/www/smr/web/index.html
+echo "<h1>Intranet de SMR</h1>" | sudo tee /var/www/smr/intranet/intranet.html
+el sudo tee crea los ficheros index.html e intranet.html
+
+2. Usamos estos comandos para crear el usuario de la intranet:
+sudo apt install apache2-utils -y
+sudo htpasswd -c /etc/apache2/.htpasswd alumno
+
+3. Luego entramos en sudo nano /etc/apache2/ports.conf para poner listen 9999 para que funciones ese puerto
+
+4. Ahora vamos a crear el virtualhost, y usamos este comando: sudo nano /etc/apache2/sites -available/smr.conf
+Dentro de ese comando vamos a escribir todo esto:
+<VirtualHost *:80>
+        ServerName www.smr.com
+        DocumentRoot /var/www/smr/web
+</VirtualHost>
+<VirtualHost *:9999>
+        ServerName www.smr.com
+        DocumentRoot /var/www/smr/intranet
+        DirectoryIndex intranet.html
+        <Directory /var/www/smr/intranet>
+            AuthType Basic
+            AuthName "Intranet SMR"
+            AuthUserFile /etc/apache2/.htpasswd
+            Require valid-user
+       </Directory>
+</VirtualHost>
+Esto es el como hemos creado los dos virtual host y como configurarlo correctamente, para que el primero tenga el puerto 80, el nombre y dentro de que directorio va a estar. Y el segundo para que sea en el purto 9999, el nombre que va a tener, dentro del directorio en el que va a estar y decir que necesita una contraseña para acceder
+
+Ahora ponemos estos cuatro comandos:
+sudo a2ensite smr.conf
+sudo a2dissite 000-default.conf
+sudo apachectl configtest
+sudo systemctl restart apache2
+
+Luego entras en sudo nano /etc/hosts y pones la ip y el nombre para entrar con el
