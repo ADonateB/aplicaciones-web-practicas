@@ -29,3 +29,22 @@ Aplicaciones WEB
 Ports.conf: es para habilitar los puertos (como el 80 que esta por defecto) para que se puedan usar
 Sites-Available: donde hacemos los ficheros ya que estan disponibles
 Sites-Enabled: donde estan los sitios habilitados/funcionando
+
+12 Virtualhost: es una configuración de un servidor web que permite alojar varios sitios web desde un solo servidor
+
+13 Virtualhost por nombre permite tener varias webs con la misma IP, nombre pero con diferente puerto
+
+14 Directorio protegido por contraseña: configuración del Auth-Basic: usamos estos comandos para crear el archivo de contraseñas
+sudo apt install apache2-utils
+sudo htpasswd -c /etc/apache2/.htpasswd usuario
+
+Ponemos esto:
+
+AuthType Basic
+AuthName "Área protegida"
+AuthUserFile /etc/apache2/.htpasswd
+Require valid-user
+
+Y al final recargamos apache con este comando
+
+sudo systemctl reload apache2
