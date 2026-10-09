@@ -23,4 +23,4 @@ sudo nano /etc/apache2/sites-available/smr.conf
 
 Y cuando estemos dentro de el archivo ponemos todo esto tal cual, ya que si fallas un espacio o no está bien posicionado no funcionará
 
-![para github](para github.png)
+![para github](para%20github.png)
