@@ -1,1 +1,25 @@
+1º paso instalar máquina virtual con las especificaciones
+2º ponemos estos tres comandos para crear la carpeta web dentro de /var/www/smr y tambien creamos la carpeta index.html dentro de /var/www/smr/web.
+Y los otros dos comandos estan para que pongan el texto dentro de su respectivo archivo creandolo tambien.
+
+sudo mkdir -p /var/www/smr/web /var/www/smr/intranet
+echo "<h1>Bienvenidos a SMR</h1>" | sudo tee /var/www/smr/web/index.html
+echo "<h1>Intranet de SMR</h1>" | sudo tee /var/www/smr/intranet/intranet.html
+
+3º usamos estos dos comandos, el primero para instalar herramientas de apache en linux. Y el segundo crea un usuario llamado alumno y guarda su contraseña
+
+sudo apt install apache2-utils -y
+sudo htpasswd -c /etc/apache2/.htpasswd alumno
+
+4º usamos este comando para editar el archivo de ports.con y dentro poner listen 9999 para poder usar el puerto 9999
+
+sudo nano /etc/apache2/ports.conf
+Listen 80
+Listen 9999
+
+5º Usamos este comando para entrar en el archivo de smr.conf que esta dentro de la carpeta de /etc/apache2/sites-available
+
+sudo nano /etc/apache2/sites-available/smr.conf
+
+Y cuando estemos dentro de el archivo ponemos todo esto tal cual, ya que si fallas un espacio o no está bien posicionado no funcionará
 
