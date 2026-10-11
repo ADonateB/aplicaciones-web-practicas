@@ -1,4 +1,7 @@
 1º paso instalar máquina virtual con las especificaciones
+
+(si no está instalado apache2 se instala poniendo estos comandos: sudo apt update y sudo apt install apache2)
+
 2º ponemos estos tres comandos para crear la carpeta web dentro de /var/www/smr y tambien creamos la carpeta index.html dentro de /var/www/smr/web.
 Y los otros dos comandos estan para que pongan el texto dentro de su respectivo archivo creandolo tambien.
 
