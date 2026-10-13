@@ -6,3 +6,9 @@ sudo apt install apache2
 
 3. Para comprobar que está funcionando bien se usa el comando:
 sudo systemctl status apache2
+
+4. Luego entramos con CD a /etc/apache2 y hacemos un ls para ver los contenidos que hay:
+Sites-available (los sitios que estan disponibles)
+Sites-enables (los sitios que estan activados)
+Ports.conf (donde se configuran los puertos para que funcionen)
+
