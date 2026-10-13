@@ -1,3 +1,8 @@
-# Apache2
-1. Se pone ssh nombre de usuario@192.168.?.?
-2. 
+# Apache2 
+1. Abrimos la MV del servidor con el usuario y su contraseña 
+2. Para instalar apache2 se hace con los siguientes comandos:
+sudo apt update
+sudo apt install apache2
+
+3. Para comprobar que está funcionando bien se usa el comando:
+sudo systemctl status apache2
