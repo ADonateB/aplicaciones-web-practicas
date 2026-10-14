@@ -1,0 +1,530 @@
+## 1. Fundamentos y protocolos del servidor web
+
+Un servidor web escucha en un puerto (normalmente **80 para HTTP** y **443 para HTTPS**), recibe peticiones de los clientes y responde siguiendo el protocolo HTTP. El intercambio básico es petición → respuesta.
+
+Ejecuta desde la terminal de la máquina virtual:
+
+```bash
+curl -v https://example.com
+```
+
+Observa en la salida:
+
+- El método HTTP (por ejemplo, `GET`), la ruta y la versión del protocolo.
+- Las cabeceras de la petición y la respuesta, como `Host`, `User-Agent` y `Content-Type`.
+- El código de estado HTTP:
+  - `200 OK`: petición atendida correctamente.
+  - `301` o `302`: redirección.
+  - `404 Not Found`: recurso no encontrado.
+  - `500`: error del servidor.
+
+**Comprobación:** identifica la petición, las cabeceras y el código de estado en la salida de `curl -v`.
+
+### Problemas frecuentes y soluciones
+
+- **`curl: command not found`:** instala la herramienta con `sudo apt update && sudo apt install curl`.
+- **No resuelve el nombre o aparece un error de conexión:** comprueba que la VM tenga Internet y que DNS funcione. Prueba `ping -c 3 1.1.1.1` y después `getent hosts example.com`.
+- **La respuesta no es `200`:** revisa el código y las cabeceras; una redirección (`301`/`302`) o un error remoto no significa necesariamente que tu VM esté mal configurada.
+
+---
+
+## 2. Instalación del servidor web
+
+Actualiza los índices de paquetes e instala Apache2:
+
+```bash
+sudo apt update
+sudo apt install apache2 -y
+sudo systemctl status apache2
+sudo ufw allow 'Apache'
+```
+
+Desde el navegador del equipo cliente, visita:
+
+```text
+http://IP_DEL_SERVIDOR
+```
+
+Debe mostrarse la página **Apache2 Ubuntu Default Page**.
+
+**Comprobación:** `systemctl status apache2` debe mostrar `active (running)` y la página predeterminada debe cargar desde el cliente.
+
+### Problemas frecuentes y soluciones
+
+- **El servicio no está activo:** consulta `sudo journalctl -u apache2 -n 50 --no-pager` y `sudo apachectl configtest`. Corrige el error indicado y vuelve a iniciar con `sudo systemctl start apache2`.
+- **No se puede instalar el paquete:** comprueba la conexión a Internet y ejecuta `sudo apt update` para ver si hay errores de repositorios o DNS.
+- **La página no carga desde el cliente:** confirma la IP con `ip a`, verifica el servicio con `sudo systemctl status apache2` y revisa el cortafuegos. Si UFW está activo, permite HTTP con `sudo ufw allow 80/tcp`.
+- **UFW no está instalado o está inactivo:** no des por hecho que el comando abrió un puerto; comprueba el estado con `sudo ufw status`.
+
+---
+
+## 3. Estructura y comandos de gestión
+
+Directorios principales de Apache2:
+
+| Ruta | Función |
+|---|---|
+| `/etc/apache2/apache2.conf` | Configuración principal |
+| `/etc/apache2/sites-available/` | Sitios virtuales definidos |
+| `/etc/apache2/sites-enabled/` | Sitios virtuales habilitados, normalmente mediante enlaces simbólicos |
+| `/etc/apache2/mods-available/` | Módulos disponibles |
+| `/etc/apache2/mods-enabled/` | Módulos habilitados |
+| `/var/www/html/` | Raíz web predeterminada |
+| `/var/log/apache2/` | Registros, incluidos `access.log` y `error.log` |
+
+Comandos de gestión:
+
+```bash
+sudo apachectl configtest
+sudo systemctl reload apache2
+sudo systemctl restart apache2
+sudo journalctl -u apache2 -f
+```
+
+- `configtest` valida la sintaxis de la configuración.
+- `reload` vuelve a cargar la configuración sin reiniciar completamente el servicio.
+- `restart` reinicia el servicio.
+- `journalctl -f` muestra los registros del servicio en tiempo real. Pulsa `Ctrl+C` para salir.
+
+**Buena práctica:** ejecuta siempre `sudo apachectl configtest` antes de recargar o reiniciar Apache después de editar archivos.
+
+### Problemas frecuentes y soluciones
+
+- **`Syntax OK` no aparece:** lee el mensaje de error; suele indicar el archivo y la línea que hay que corregir.
+- **`reload` falla:** ejecuta `sudo apachectl configtest` y revisa `sudo journalctl -u apache2 -n 50 --no-pager`.
+- **No puedes leer o editar un archivo de configuración:** usa `sudo` con el editor o comando que corresponda.
+- **No encuentras el motivo de un error HTTP:** revisa los registros con `sudo tail -n 50 /var/log/apache2/error.log` y las peticiones en `access.log`.
+
+---
+
+## 4. Creación de sitios virtuales
+
+Crearemos un sitio virtual llamado `sitio1.local`, independiente del sitio predeterminado.
+
+### 4.1. Crear el directorio y la página
+
+```bash
+sudo cp /etc/apache2/sites-available/000-default.conf \
+  /etc/apache2/sites-available/sitio1.conf
+
+sudo mkdir -p /var/www/sitio1
+echo '<h1>sitio1.local</h1>' | sudo tee /var/www/sitio1/index.html
+```
+
+### 4.2. Configurar el sitio
+
+Edita el archivo:
+
+```bash
+sudo nano /etc/apache2/sites-available/sitio1.conf
+```
+
+Configura el bloque del sitio así:
+
+```apache
+<VirtualHost *:80>
+    ServerName sitio1.local
+    DocumentRoot /var/www/sitio1
+    ErrorLog ${APACHE_LOG_DIR}/sitio1_error.log
+    CustomLog ${APACHE_LOG_DIR}/sitio1_access.log combined
+</VirtualHost>
+```
+
+Guarda en Nano con `Ctrl+O`, Enter y `Ctrl+X`.
+
+### 4.3. Habilitar el sitio
+
+```bash
+sudo a2ensite sitio1.conf
+sudo a2dissite 000-default.conf
+sudo apachectl configtest
+sudo systemctl reload apache2
+```
+
+**Comprobación:** `a2ensite` crea el enlace en `sites-enabled/` y `apachectl configtest` debe terminar con `Syntax OK`.
+
+### Problemas frecuentes y soluciones
+
+- **Error de sintaxis al recargar:** comprueba que las etiquetas `<VirtualHost>` y `</VirtualHost>` estén emparejadas y que las directivas estén escritas correctamente.
+- **Sigue apareciendo la página predeterminada:** verifica `sudo a2dissite 000-default.conf`, habilita `sitio1.conf` y recarga Apache.
+- **Aparece un error `403 Forbidden`:** comprueba permisos de lectura y acceso a los directorios de la ruta; revisa también el registro `sitio1_error.log`.
+- **No se encuentra `sitio1.conf`:** confirma que el archivo está en `/etc/apache2/sites-available/` y que el nombre usado en `a2ensite` coincide exactamente.
+
+---
+
+## 5. Discriminación del sitio destino según el tráfico entrante
+
+Crearemos un segundo sitio, `sitio2.local`. Ambos sitios pueden escuchar en la misma IP y el puerto 80. Apache selecciona el sitio según la cabecera HTTP `Host` que envía el cliente.
+
+### 5.1. Crear el segundo sitio
+
+```bash
+sudo mkdir -p /var/www/sitio2
+echo '<h1>sitio2.local</h1>' | sudo tee /var/www/sitio2/index.html
+```
+
+Crea `/etc/apache2/sites-available/sitio2.conf`:
+
+```bash
+sudo nano /etc/apache2/sites-available/sitio2.conf
+```
+
+Contenido:
+
+```apache
+<VirtualHost *:80>
+    ServerName sitio2.local
+    DocumentRoot /var/www/sitio2
+    ErrorLog ${APACHE_LOG_DIR}/sitio2_error.log
+    CustomLog ${APACHE_LOG_DIR}/sitio2_access.log combined
+</VirtualHost>
+```
+
+Habilita el sitio y recarga:
+
+```bash
+sudo a2ensite sitio2.conf
+sudo apachectl configtest
+sudo systemctl reload apache2
+```
+
+### 5.2. Probar la cabecera Host
+
+Desde la VM, ejecuta:
+
+```bash
+curl -H "Host: sitio1.local" http://localhost
+curl -H "Host: sitio2.local" http://localhost
+```
+
+Cada comando debe devolver el título del sitio correspondiente.
+
+### 5.3. Acceder desde el equipo cliente
+
+Añade estas entradas al archivo `hosts` del cliente, sustituyendo `IP_DEL_SERVIDOR` por la IP real de la VM:
+
+```text
+IP_DEL_SERVIDOR sitio1.local
+IP_DEL_SERVIDOR sitio2.local
+```
+
+En Linux, el archivo suele ser `/etc/hosts`; en Windows, `C:\Windows\System32\drivers\etc\hosts`. Editar estos archivos requiere permisos de administrador.
+
+Después prueba `http://sitio1.local` y `http://sitio2.local` en el navegador.
+
+**Comprobación:** las dos peticiones `curl` con diferente cabecera `Host` devuelven contenidos distintos, aunque usan la misma IP y el mismo puerto.
+
+### Problemas frecuentes y soluciones
+
+- **Las dos peticiones muestran el mismo sitio:** revisa `ServerName`, `DocumentRoot` y que ambos sitios estén habilitados. Ejecuta `sudo apachectl -S` para ver los sitios virtuales reconocidos.
+- **`curl` funciona, pero el navegador no:** revisa las entradas del archivo `hosts`, la IP y que no haya errores tipográficos en los nombres.
+- **El navegador no puede resolver `sitio1.local`:** `curl -H "Host: ..."` no necesita DNS; el navegador sí necesita que el nombre se resuelva mediante `hosts` o DNS.
+- **`a2ensite` informa de un archivo inexistente:** confirma que creaste `sitio2.conf` en `sites-available`.
+
+---
+
+## 6. Configuración de la seguridad del servidor
+
+### 6.1. Ocultar información de versión
+
+Edita el archivo:
+
+```bash
+sudo nano /etc/apache2/conf-available/security.conf
+```
+
+Asegúrate de que las directivas tengan estos valores y no estén comentadas:
+
+```apache
+ServerTokens Prod
+ServerSignature Off
+```
+
+### 6.2. Configurar permisos
+
+```bash
+sudo chown -R www-data:www-data /var/www/sitio1 /var/www/sitio2
+
+sudo find /var/www/sitio1 -type d -exec chmod 755 {} \;
+sudo find /var/www/sitio1 -type f -exec chmod 644 {} \;
+```
+
+La práctica original aplica explícitamente los permisos detallados a `sitio1`; si quieres aplicar el mismo criterio a `sitio2`, repite los comandos `find` para ese directorio.
+
+### 6.3. Evitar el listado de directorios
+
+Dentro del bloque `<VirtualHost>` correspondiente o en un bloque `<Directory>` adecuado, configura:
+
+```apache
+Options -Indexes
+```
+
+Recarga Apache después de validar la configuración:
+
+```bash
+sudo apachectl configtest
+sudo systemctl reload apache2
+```
+
+**Comprobación:** ejecuta `curl -I http://localhost` y revisa la cabecera `Server`. Con `ServerTokens Prod` se reduce la información de versión expuesta, pero puede seguir apareciendo la identificación básica `Apache`.
+
+### Problemas frecuentes y soluciones
+
+- **La versión sigue apareciendo:** comprueba que `ServerTokens Prod` y `ServerSignature Off` no estén comentadas y que se haya recargado Apache.
+- **Error de configuración tras añadir `Options -Indexes`:** verifica que la directiva esté dentro de un contexto válido, como `<Directory>` o `<VirtualHost>`.
+- **Aparece `403 Forbidden` al entrar en una carpeta:** puede ser esperado si no existe un `index.html` y el listado de directorios está deshabilitado; crea una página de índice si debe ser accesible.
+- **Apache no puede leer archivos tras cambiar permisos:** comprueba propietario y permisos con `ls -ld /var/www/sitio1 /var/www/sitio2` y `ls -l`. Evita solucionar problemas aplicando permisos abiertos indiscriminadamente.
+
+---
+
+## 7. Comprobación del acceso de los usuarios
+
+Protegeremos con usuario y contraseña una carpeta de `sitio1` usando autenticación básica HTTP.
+
+### 7.1. Crear la carpeta y el archivo
+
+```bash
+sudo mkdir -p /var/www/sitio1/privado
+echo 'zona privada' | sudo tee /var/www/sitio1/privado/index.html
+```
+
+### 7.2. Instalar herramientas y crear el usuario
+
+```bash
+sudo apt install apache2-utils -y
+sudo htpasswd -c /etc/apache2/.htpasswd alumno
+```
+
+El comando solicitará una contraseña. La opción `-c` crea el archivo; úsala solo al crearlo por primera vez. Para añadir usuarios después, ejecuta `sudo htpasswd /etc/apache2/.htpasswd otro_usuario` **sin** `-c`, porque recrear el archivo puede borrar las cuentas anteriores.
+
+### 7.3. Configurar el acceso restringido
+
+Edita el archivo del sitio:
+
+```bash
+sudo nano /etc/apache2/sites-available/sitio1.conf
+```
+
+Añade dentro del bloque del sitio:
+
+```apache
+<Directory /var/www/sitio1/privado>
+    AuthType Basic
+    AuthName "Zona restringida"
+    AuthUserFile /etc/apache2/.htpasswd
+    Require valid-user
+</Directory>
+```
+
+Valida y recarga:
+
+```bash
+sudo apachectl configtest
+sudo systemctl reload apache2
+```
+
+### 7.4. Comprobar los dos casos
+
+Sin credenciales, la respuesta debe ser `401 Unauthorized`:
+
+```bash
+curl -i -H "Host: sitio1.local" http://localhost/privado/
+```
+
+Con credenciales, debe ser `200 OK`:
+
+```bash
+curl -i -u alumno http://localhost/privado/ -H "Host: sitio1.local"
+```
+
+`curl` solicitará la contraseña de forma interactiva. Así no queda escrita en el historial del terminal.
+
+**Nota de seguridad:** la autenticación básica no cifra por sí misma las credenciales. Utiliza HTTPS para protegerlas en tránsito.
+
+### Problemas frecuentes y soluciones
+
+- **La petición sin credenciales devuelve `200 OK`:** comprueba que el bloque `<Directory>` apunta exactamente a `/var/www/sitio1/privado`, que está dentro de la configuración activa y que Apache se ha recargado.
+- **La petición autenticada devuelve `401 Unauthorized`:** verifica el nombre de usuario, vuelve a establecer la contraseña con `sudo htpasswd /etc/apache2/.htpasswd alumno` y comprueba que `AuthUserFile` apunte al archivo correcto.
+- **Aparece `500 Internal Server Error`:** revisa `sudo tail -n 50 /var/log/apache2/sitio1_error.log`; puede haber un error en las directivas de autenticación o acceso al archivo.
+- **Se pierde un usuario al crear otro:** no uses `htpasswd -c` para añadir cuentas; la opción `-c` vuelve a crear el archivo.
+- **La contraseña viaja sin cifrar:** no uses autenticación básica sobre HTTP en un entorno real; configura HTTPS.
+
+---
+
+## 8. Código en el servidor frente a código en el cliente
+
+Instala el módulo PHP para Apache y reinicia el servicio:
+
+```bash
+sudo apt install libapache2-mod-php -y
+sudo systemctl restart apache2
+```
+
+### 8.1. Crear `fecha.php`
+
+Guarda este contenido en `/var/www/sitio1/fecha.php`:
+
+```php
+<?php
+echo "Fecha en el servidor: " . date("Y-m-d H:i:s");
+?>
+```
+
+Puedes crearlo con `sudo nano /var/www/sitio1/fecha.php`.
+
+### 8.2. Crear `reloj.html`
+
+Guarda este contenido en `/var/www/sitio1/reloj.html`:
+
+```html
+<p id="reloj"></p>
+<script>
+  setInterval(() => {
+    document.getElementById('reloj').textContent = new Date().toString();
+  }, 1000);
+</script>
+```
+
+### 8.3. Comparar el resultado
+
+Abre ambas páginas en el navegador y utiliza **Ver código fuente** (`Ctrl+U`):
+
+- En `fecha.php`, el navegador recibe el texto generado por PHP; no debería recibir las etiquetas `<?php ... ?>`.
+- En `reloj.html`, el navegador recibe el JavaScript y lo ejecuta; el reloj se actualiza cada segundo sin recargar la página.
+
+### Problemas frecuentes y soluciones
+
+- **El navegador descarga o muestra el código PHP en lugar de ejecutarlo:** comprueba que `libapache2-mod-php` esté instalado, que Apache se haya reiniciado y que el archivo termine en `.php`. No publiques páginas con código PHP sin procesar.
+- **`fecha.php` devuelve `404 Not Found`:** comprueba la ruta, el nombre del archivo y que `sitio1.local` esté apuntando al sitio correcto.
+- **PHP no aparece en `apache2ctl -M`:** comprueba los paquetes instalados y la salida de `sudo apache2ctl -M`; revisa también los registros de Apache.
+- **El reloj no avanza:** asegúrate de que has copiado el bloque `<script>` completo y que el elemento `id="reloj"` existe.
+- **El archivo PHP da error:** revisa la sintaxis y los registros del servicio. La integración con bases de datos queda fuera de esta demostración.
+
+---
+
+## 9. Instalación de módulos sobre el servidor
+
+Apache gestiona módulos mediante comandos que habilitan o deshabilitan enlaces simbólicos entre `mods-available/` y `mods-enabled/`.
+
+```bash
+sudo apache2ctl -M
+sudo a2enmod rewrite
+sudo a2enmod headers
+sudo a2dismod rewrite
+sudo systemctl reload apache2
+```
+
+Para comprobar el enlace del módulo `rewrite`:
+
+```bash
+ls -la /etc/apache2/mods-enabled/ | grep rewrite
+```
+
+Después de instalar PHP, comprueba los módulos activos:
+
+```bash
+sudo apache2ctl -M
+```
+
+**Comprobación:** `php_module` debe aparecer en la salida si el módulo PHP está cargado con la configuración instalada.
+
+### Problemas frecuentes y soluciones
+
+- **`Module rewrite does not exist`:** comprueba que Apache esté instalado y que el nombre del módulo esté escrito correctamente.
+- **El módulo aparece como habilitado, pero no funciona:** confirma que la configuración que lo necesita esté correcta y recarga Apache. Algunos cambios pueden requerir reinicio según el módulo.
+- **Apache no recarga después de cambiar módulos:** ejecuta `sudo apachectl configtest` y consulta `sudo journalctl -u apache2 -n 50 --no-pager`.
+- **No aparece `php_module`:** comprueba que `libapache2-mod-php` esté instalado y ejecuta `sudo systemctl restart apache2`; después vuelve a consultar `sudo apache2ctl -M`.
+- **`grep rewrite` no muestra nada:** verifica si el módulo está habilitado con `sudo a2query -m rewrite` o vuelve a habilitarlo con `sudo a2enmod rewrite`.
+
+---
+
+## 10. Mecanismos para asegurar las comunicaciones cliente-servidor
+
+Para practicar HTTPS sin un dominio público, crearemos un certificado autofirmado. Este certificado sirve para probar el mecanismo, pero los navegadores no lo consideran confiable de forma predeterminada.
+
+### 10.1. Activar SSL y crear el certificado
+
+```bash
+sudo a2enmod ssl
+sudo mkdir -p /etc/apache2/ssl
+
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout /etc/apache2/ssl/sitio1.key \
+  -out /etc/apache2/ssl/sitio1.crt \
+  -subj "/CN=sitio1.local"
+```
+
+### 10.2. Añadir el sitio HTTPS
+
+Edita `/etc/apache2/sites-available/sitio1.conf` y añade este bloque:
+
+```apache
+<VirtualHost *:443>
+    ServerName sitio1.local
+    DocumentRoot /var/www/sitio1
+    SSLEngine on
+    SSLCertificateFile /etc/apache2/ssl/sitio1.crt
+    SSLCertificateKeyFile /etc/apache2/ssl/sitio1.key
+</VirtualHost>
+```
+
+Abre el puerto HTTPS en UFW y valida la configuración:
+
+```bash
+sudo ufw allow 443/tcp
+sudo apachectl configtest
+sudo systemctl reload apache2
+```
+
+### 10.3. Probar HTTPS
+
+Desde la VM, ejecuta:
+
+```bash
+curl -k -I https://sitio1.local
+```
+
+La opción `-k` hace que `curl` no valide la confianza del certificado. Se utiliza aquí solo para la prueba con el certificado autofirmado.
+
+**Comprobación:** la respuesta debería incluir `200 OK` por HTTPS, si el sitio está configurado y accesible correctamente.
+
+### Diferencia entre certificado autofirmado y certificado real
+
+- **Autofirmado:** lo firma el propio creador; los clientes no confían en él automáticamente y muestran una advertencia.
+- **Emitido por una autoridad reconocida:** permite validar la identidad si el nombre del sitio, la cadena de confianza y la vigencia son correctos. Para un certificado público de Let's Encrypt normalmente se necesita un dominio que pueda validarse.
+
+### Problemas frecuentes y soluciones
+
+- **Apache no arranca o no recarga:** comprueba `sudo apachectl configtest`; asegúrate de que las rutas del certificado y de la clave sean correctas.
+- **`curl` no resuelve `sitio1.local`:** comprueba la resolución del nombre. Para probar desde la propia VM, puedes usar `curl -k -I --resolve sitio1.local:443:127.0.0.1 https://sitio1.local`.
+- **Error de conexión rechazada en el puerto 443:** verifica que el módulo SSL esté habilitado, que exista el bloque `<VirtualHost *:443>` y que Apache esté escuchando en el puerto 443 (`sudo ss -ltnp | grep ':443'`).
+- **El navegador avisa de certificado no confiable:** es lo esperado para un certificado autofirmado. No es lo mismo que un certificado público validado.
+- **Permiso denegado al leer la clave:** comprueba los permisos del archivo y que Apache pueda leer la clave privada. No hagas la clave privada legible para todos.
+- **`curl -k` funciona, pero la conexión normal da una advertencia:** `-k` omite la validación; no convierte el certificado autofirmado en confiable. No uses `-k` como solución permanente en producción.
+
+---
+
+## Checklist final
+
+- [ ] `curl -v https://example.com` permite identificar petición, cabeceras y código de estado.
+- [ ] Apache2 está instalado y `systemctl status apache2` muestra `active (running)`.
+- [ ] La página web predeterminada o el sitio configurado carga desde el cliente.
+- [ ] `apachectl configtest` devuelve `Syntax OK` tras los cambios.
+- [ ] `sitio1.local` y `sitio2.local` muestran contenidos diferentes.
+- [ ] Se han aplicado las medidas de ocultación de versión, permisos y desactivación del listado de directorios.
+- [ ] La carpeta privada devuelve `401 Unauthorized` sin credenciales y `200 OK` con credenciales válidas.
+- [ ] PHP se ejecuta en el servidor y JavaScript se ejecuta en el navegador.
+- [ ] Se pueden habilitar y deshabilitar módulos y consultar los módulos activos.
+- [ ] HTTPS responde en el puerto 443 con el certificado autofirmado de práctica.
+
+## Comandos útiles para diagnosticar errores
+
+```bash
+sudo apachectl configtest
+sudo systemctl status apache2
+sudo journalctl -u apache2 -n 50 --no-pager
+sudo tail -n 50 /var/log/apache2/error.log
+sudo apachectl -S
+sudo apache2ctl -M
+ip a
+```
