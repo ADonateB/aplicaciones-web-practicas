@@ -4,4 +4,6 @@
 
 ### Índice
 
-1. Como crear una MV de ubuntu: 
+1. Como crear una MV de ubuntu: [submodule "ubuntu.md"]
+path = ubuntu.md
+url = 
