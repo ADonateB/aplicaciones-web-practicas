@@ -1,0 +1,200 @@
+Guía para preparar una máquina virtual con Ubuntu Server 24.04, conexión a Internet mediante NAT y acceso por SSH desde el equipo anfitrión mediante una red Host-only.
+
+Configuraremos dos adaptadores de red en la misma máquina virtual:
+
+- **Adaptador 1 — NAT:** proporciona salida a Internet a la máquina virtual para actualizar el sistema, instalar paquetes y descargar software.
+- **Adaptador 2 — Host-only (solo anfitrión):** crea una red privada entre el equipo anfitrión y la máquina virtual. Tendrá una IP fija para conectarnos por SSH en cada sesión.
+
+## Requisitos previos
+
+- VirtualBox instalado en el equipo anfitrión (Ubuntu).
+- ISO de **Ubuntu Server 24.04 LTS** descargada desde [ubuntu.com/download/server](https://ubuntu.com/download/server). Debe ser la versión *Server*, no *Desktop*.
+- Al menos 25 GB libres en disco y 2 GB de RAM disponibles para la máquina virtual.
+- Guardar en un lugar seguro el nombre de usuario, contraseña y hostname que se creen durante la instalación.
+
+## 1. Crear la red Host-only
+
+Este paso se hace una sola vez, no por cada máquina virtual.
+
+1. En VirtualBox, abre **Archivo → Herramientas de red del anfitrión (Host Network Manager)**.
+2. Pulsa **Crear**. Aparecerá un adaptador nuevo, normalmente llamado `vboxnet0`.
+3. Comprueba la configuración IPv4 del adaptador. Un ejemplo es:
+   - Dirección: `192.168.56.1`
+   - Máscara: `255.255.255.0`
+4. Si es necesario, edita la configuración para usar esos valores.
+5. Puedes dejar el servidor DHCP desactivado: en esta guía asignaremos manualmente la IP de la máquina virtual con Netplan.
+6. Cierra el gestor. La red Host-only ya estará lista para otras máquinas virtuales.
+
+## 2. Crear la máquina virtual
+
+1. En VirtualBox, pulsa **Nueva**.
+2. Configura la máquina:
+   - **Nombre sugerido:** `SMR-AplicacionesWeb`
+   - **Tipo:** Linux
+   - **Versión:** Ubuntu (64-bit)
+3. Asigna al menos **2048 MB de RAM** (4096 MB si el equipo lo permite).
+4. Crea un disco virtual nuevo:
+   - Tipo: VDI
+   - Almacenamiento: reservado dinámicamente
+   - Tamaño: 20–25 GB
+5. Opcionalmente, en **Configuración → Sistema → Procesador**, asigna 2 CPU si el equipo tiene recursos suficientes. Con 1 CPU también funciona.
+
+## 3. Configurar los adaptadores de red
+
+Con la máquina virtual apagada, entra en **Configuración → Red**.
+
+### Adaptador 1 — NAT
+
+1. Marca **Habilitar adaptador de red**.
+2. En **Conectado a**, selecciona **NAT**.
+
+Esto proporciona salida a Internet a la máquina virtual.
+
+### Adaptador 2 — Host-only
+
+1. Abre la pestaña **Adaptador 2**.
+2. Marca **Habilitar adaptador de red**.
+3. En **Conectado a**, selecciona **Adaptador solo-anfitrión**.
+4. Elige `vboxnet0`, creado en el apartado anterior.
+5. Guarda los cambios.
+
+> **Importante:** si durante la instalación de Ubuntu solo aparece un adaptador, comprueba que ambos estén habilitados.
+
+## 4. Montar la ISO y arrancar
+
+1. Ve a **Configuración → Almacenamiento**.
+2. Selecciona la unidad óptica vacía, pulsa el icono de disco y elige la ISO descargada, por ejemplo `ubuntu-24.04-live-server-amd64.iso`.
+3. Inicia la máquina virtual. Debería aparecer el instalador de Ubuntu Server (Subiquity).
+
+## 5. Instalar Ubuntu Server 24.04
+
+Sigue estos pasos en el instalador:
+
+1. **Idioma:** selecciona español o el idioma que prefieras.
+2. **Teclado:** selecciona la distribución Spanish o la que corresponda a tu teclado.
+3. **Tipo de instalación:** elige Ubuntu Server, no *minimized*, salvo que se indique lo contrario.
+4. **Red:** el instalador detectará las interfaces (por ejemplo, `enp0s3` y `enp0s8`). Déjalas con DHCP por ahora; configuraremos la IP fija de Host-only después.
+5. **Proxy y mirror:** déjalos en blanco o con los valores predeterminados.
+6. **Almacenamiento:** selecciona usar el disco completo (el disco virtual creado) y confirma.
+7. **Perfil de usuario:** introduce tu nombre, el hostname (por ejemplo, `smr-web`), nombre de usuario y contraseña. Anota estos datos.
+8. **Servidor SSH:** en la pantalla **SSH Setup**, marca **Install OpenSSH server**.
+
+   > **Importante:** si no instalas OpenSSH durante este paso, tendrás que instalarlo manualmente más adelante.
+
+   ```bash
+   sudo apt update && sudo apt install openssh-server
+   ```
+
+9. **Snaps destacados:** no selecciones ninguno; los servicios se instalarán individualmente durante el módulo.
+10. **Finalizar:** espera a que termine y pulsa **Reboot Now**. Si pide retirar el medio de instalación, pulsa Enter; VirtualBox suele expulsar la ISO automáticamente.
+
+## 6. Comprobar las interfaces de red
+
+1. Inicia sesión con el usuario y la contraseña que creaste.
+2. Lista las interfaces de red:
+
+   ```bash
+   ip a
+   ```
+
+3. Identifica las dos interfaces:
+   - La que tenga una IP del rango `10.0.2.x` suele ser la interfaz NAT.
+   - La Host-only puede no tener IP todavía o tener una del rango `192.168.56.x`.
+4. Comprueba la salida a Internet a través de NAT:
+
+   ```bash
+   ping -c 3 archive.ubuntu.com
+   ```
+
+## 7. Configurar una IP fija con Netplan
+
+Para que la IP de la interfaz Host-only no cambie entre sesiones, configuraremos Netplan.
+
+### Paso 1. Localizar el archivo
+
+```bash
+ls /etc/netplan/
+```
+
+Normalmente aparecerá un archivo `.yaml`.
+
+### Paso 2. Editar el archivo
+
+Sustituye el nombre del archivo por el que aparezca en tu sistema:
+
+```bash
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+
+### Paso 3. Escribir la configuración
+
+Sustituye `enp0s3` y `enp0s8` por los nombres reales que hayas visto con `ip a`. En este ejemplo, la primera interfaz es NAT y la segunda es Host-only:
+
+```yaml
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: true
+    enp0s8:
+      dhcp4: false
+      addresses:
+        - 192.168.56.10/24
+```
+
+**Consejos:**
+
+- YAML depende de la indentación: usa espacios, nunca tabuladores.
+- Mantén los niveles de indentación como en el ejemplo.
+- Cada alumno debe utilizar una IP distinta dentro del rango, por ejemplo `192.168.56.10`, `192.168.56.11` o `192.168.56.12`.
+- Comprueba que la IP elegida esté dentro de la subred Host-only y no esté ya en uso.
+
+### Paso 4. Aplicar los cambios
+
+Guarda en Nano con `Ctrl+O`, pulsa Enter y sal con `Ctrl+X`. Después ejecuta:
+
+```bash
+sudo netplan apply
+```
+
+### Paso 5. Verificar
+
+```bash
+ip a
+```
+
+Comprueba que la interfaz Host-only muestra la IP fija elegida, por ejemplo `192.168.56.10`.
+
+## 8. Conectarse por SSH
+
+Desde una terminal del equipo anfitrión, ejecuta el comando sustituyendo `tu_usuario` por el usuario creado durante la instalación y usando la IP configurada:
+
+```bash
+ssh tu_usuario@192.168.56.10
+```
+
+La primera vez puede aparecer una pregunta para confirmar la huella del servidor. Escribe `yes` si reconoces que te estás conectando a tu máquina virtual. Después introduce la contraseña.
+
+Si la conexión funciona, el entorno estará listo. A partir de aquí, el trabajo del módulo se realizará por SSH desde la terminal del anfitrión, no desde la ventana de VirtualBox.
+
+## Checklist final
+
+- [ ] Máquina virtual creada con dos adaptadores: Adaptador 1 = NAT y Adaptador 2 = Host-only.
+- [ ] Ubuntu Server 24.04 instalado.
+- [ ] OpenSSH server instalado.
+- [ ] `ip a` muestra las dos interfaces de red.
+- [ ] La máquina virtual tiene salida a Internet mediante NAT.
+- [ ] La IP fija de Host-only está configurada mediante Netplan.
+- [ ] La conexión SSH desde el equipo anfitrión funciona.
+
+## Problemas comunes
+
+| Síntoma | Causa probable / solución |
+|---|---|
+| No aparece la interfaz Host-only dentro de la VM | Comprueba que el Adaptador 2 esté habilitado y conectado al `vboxnet0` correcto. |
+| No hay Internet dentro de la VM | Comprueba que el Adaptador 1 esté habilitado y configurado en modo NAT. |
+| `ssh: connect to host ... Connection refused` | Puede que OpenSSH no se instalara. Ejecuta `sudo apt update && sudo apt install openssh-server`. |
+| `sudo netplan apply` muestra un error de sintaxis | Revisa la indentación YAML: solo espacios, nunca tabuladores. Comprueba también que los nombres de interfaz coincidan con `ip a`. |
+| La IP Host-only no es la esperada | Comprueba que la subred configurada en el gestor de redes del anfitrión coincida con la dirección configurada en Netplan. |
+
+---
