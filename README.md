@@ -6,4 +6,4 @@
 
 1. Como crear una MV de ubuntu: [submodule "ubuntu.md"]
 path = ubuntu.md
-url = 
+url = https://github.com/ADonateB/aplicaciones-web-practicas/blob/main/ubuntu.md
