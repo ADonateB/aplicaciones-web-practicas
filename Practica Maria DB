@@ -1,0 +1,169 @@
+1. Objetivos
+Al terminar la práctica serás capaz de:
+- Explicar qué es una base de datos y para qué la necesita WordPress.
+- Instalar MariaDB sobre Ubuntu 24.04 y comprobar que funciona.
+- Instalar PHP y comprobar que Apache lo ejecuta.
+- Dejar el servidor (Linux, Apache, MariaDB y PHP) listo para instalar
+  WordPress.
+2. Requisitos previos
+- La máquina virtual con Ubuntu 24.04 y Apache funcionando de la
+  práctica anterior.
+- Un usuario con permisos de sudo y conexión a Internet.
+- Tu repositorio de GitHub con el README.md donde enlazas las
+  memorias de las prácticas.
+Consejo: antes de empezar, haz una instantánea (snapshot) de la
+máquina virtual. Si algo sale mal, podrás volver atrás en un minuto.
+
+3. Normas de la memoria
+Debes seguir la práctica paso a paso y documentarla en Markdown en
+GitHub:
+1. Crea en tu repositorio el fichero practica-mariadb.md y enlázalo
+   desde tu README.md.
+2. Para cada paso incluye:
+   - El comando ejecutado, en un bloque de código.
+   - La salida relevante del terminal.
+   - Una captura de pantalla (carpeta img/) cuando se indique.
+   - Una explicación con tus propias palabras de qué hace y por qué.
+3. Haz commits frecuentes con mensajes descriptivos.
+4. Responde a las preguntas de reflexión de cada apartado.
+4. Antes de empezar: ¿qué es una base de datos?
+Una base de datos es como un archivador muy ordenado donde un programa
+guarda su información para poder encontrarla y usarla rápido. Está
+organizada en tablas (como las hojas de una hoja de cálculo), con
+columnas (qué datos se guardan) y filas (cada elemento guardado).
+¿Para qué la necesita WordPress? WordPress guarda en la base de
+datos todo lo que no son ficheros: las entradas, las páginas, los
+comentarios, los usuarios y la configuración del sitio. Cada vez que
+alguien visita la web, WordPress le pide los datos a la base de datos.
+¿Qué es MariaDB? Es el programa que gestiona la base de datos: la
+guarda, la protege y responde a las peticiones. Es la que viene en los
+repositorios de Ubuntu y funciona muy bien con WordPress.
+Cómo encaja todo (el LAMP):
+Navegador --> Apache --> PHP --> MariaDB
+(el visitante) (sirve la web) (ejecuta WordPress) (guarda los datos)
+Ya tienes Linux y Apache. Hoy instalas las dos piezas que faltan:
+MariaDB y PHP.
+
+
+5. Desarrollo de la práctica
+Apartado 1. Preparación del sistema
+Actualiza la lista de paquetes y comprueba que Apache sigue funcionando:
+sudo apt update
+systemctl is-active apache2
+La última línea debe responder active.
+Captura: la respuesta de systemctl is-active apache2.
+Apartado 2. Instalación de MariaDB
+sudo apt install mariadb-server -y
+Comprueba la versión instalada:
+mariadb --version
+Debes ver algo parecido a esto (el último número puede variar):
+mariadb  Ver 15.1 Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
+MariaDB 10.11 es una versión de soporte largo (LTS) compatible con las
+versiones actuales de WordPress.
+Captura: la versión.
+Pregunta de reflexión: ¿Qué diferencia hay entre el paquete
+mariadb-server y el paquete mariadb-client? ¿Cuál de los dos has
+instalado?
+Apartado 3. Comprobación del funcionamiento
+3.1. Estado del servicio
+sudo systemctl status mariadb
+systemctl is-enabled mariadb
+El primer comando debe mostrar active (running) (el servicio está
+funcionando ahora mismo) y el segundo enabled (arrancará solo cada vez
+que se encienda el equipo). Ubuntu lo deja todo configurado
+automáticamente al instalar. Para salir de la pantalla de estado, pulsa
+q.
+3.2. Entrar en la base de datos
+sudo mariadb
+Si todo va bien, verás un mensaje de bienvenida y el prompt cambiará,
+porque ahora estás dentro de MariaDB:
+Welcome to the MariaDB monitor. Commands end with ; or \g.
+Server version: 10.11.14-MariaDB-0ubuntu0.24.04.1 Ubuntu 24.04
+
+MariaDB [(none)]>
+Con eso ya has comprobado que MariaDB está funcionando y responde. No
+hace falta hacer nada más aquí: escribe exit y pulsa Enter para volver
+al terminal de Linux.
+Captura: el estado del servicio y la entrada en MariaDB.
+Pregunta de reflexión: ¿Qué diferencia hay entre active (running)
+y enabled? ¿Qué pasaría con la web de WordPress si MariaDB estuviera
+active pero no enabled y se reiniciara el servidor?
+Apartado 4. Comandos principales
+Estos son los comandos que usarás para manejar el servicio. Pruébalos y
+explica con tus palabras qué hace cada uno:
+  Comando                             Función
+  sudo systemctl start mariadb      Arranca el servicio
+  sudo systemctl stop mariadb       Detiene el servicio
+  sudo systemctl restart mariadb    Reinicia el servicio
+  sudo systemctl status mariadb     Muestra su estado
+  sudo systemctl enable mariadb     Lo arranca automáticamente al
+                                  encender el equipo
+Apartado 5. ¿Qué pasa si MariaDB está parado?
+Más adelante, cuando WordPress muestre el error "Error al establecer
+una conexión con la base de datos", lo primero que tendrás que mirar
+es si MariaDB está funcionando. Vamos a ver cómo se nota.
+Detén el servicio a propósito:
+sudo systemctl stop mariadb
+systemctl is-active mariadb
+sudo mariadb
+El estado mostrará inactive y al intentar entrar verás un error como
+este:
+ERROR 2002 (HY000): Can't connect to local server through socket '/run/mysqld/mysqld.sock' (2)
+Significa: "no puedo conectar con MariaDB porque no está en marcha".
+Vuelve a arrancarlo y comprueba que todo vuelve a la normalidad:
+sudo systemctl start mariadb
+systemctl is-active mariadb
+Captura: el error y la recuperación.
+Pregunta de reflexión: Si WordPress no pudiera conectar con la base
+de datos, ¿qué dos comandos de este apartado usarías para saber si el
+problema es que MariaDB está parado?
+Apartado 6. Instalación de PHP
+WordPress está hecho en PHP. Instalamos PHP y las piezas que WordPress
+necesita:
+sudo apt install php libapache2-mod-php php-mysql php-curl php-gd php-mbstring php-xml php-zip php-intl -y
+php -v
+php -v debe mostrar PHP 8.3.x. Para qué sirve cada paquete:
+  Paquete                             Función
+  php                               El lenguaje PHP
+  libapache2-mod-php                Permite a Apache ejecutar PHP
+  php-mysql                         Permite a PHP hablar con MariaDB
+                                      (imprescindible)
+  php-curl                          Conexiones a otros servidores
+                                      (actualizaciones, plugins)
+  php-gd                            Tratamiento de imágenes
+  php-mbstring                      Manejo de textos con tildes y
+                                      caracteres especiales
+  php-xml                           Lectura y escritura de ficheros XML
+  php-zip                           Instalación y actualización de
+                                      plugins y temas
+  php-intl                          Idiomas y formatos regionales
+Reinicia Apache y comprueba que ha cargado PHP:
+sudo systemctl restart apache2
+Debes ver mpm_prefork_module y php_module.
+Comprueba que PHP puede hablar con MariaDB:
+php -m | grep -i mysql
+Debe aparecer mysqli, mysqlnd y pdo_mysql. Son las piezas que usa
+WordPress para conectarse a la base de datos.
+Comprueba que Apache ejecuta PHP:
+echo '<?php phpinfo();' | sudo tee /var/www/html/info.php
+Abre http://IP_DE_TU_SERVIDOR/info.php en el navegador. Debe aparecer
+una página morada con la versión de PHP.
+Captura: php -v, los módulos y la página info.php.
+Borra el fichero de prueba (obligatorio):
+sudo rm /var/www/html/info.php
+ls /var/www/html
+Pregunta de reflexión: ¿Por qué es peligroso dejar info.php en un
+servidor real? ¿Para qué sirve el paquete php-mysql?
+Apartado 7. Comprobación final
+systemctl is-active apache2 mariadb
+php -v
+is-active debe responder active dos veces. Completa en tu memoria
+este resumen:
+  Pieza del LAMP   Programa        Estado
+  Linux            Ubuntu 24.04    Instalado
+  Apache           Apache2         Funcionando
+  MariaDB          MariaDB 10.11   Funcionando
+  PHP              PHP 8.3         Funcionando y preparado para MariaDB
+Antes de acabar, haz una nueva instantánea (snapshot) de la máquina
+virtual con el servidor listo. Será tu punto de partida seguro para
+instalar WordPress.
