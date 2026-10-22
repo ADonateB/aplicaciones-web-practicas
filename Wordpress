@@ -1,1 +1,34 @@
+Primero ponemos estos comandos para comprobar que todo funciona correctamente
 
+systemctl is-active apache2 mariadb (en este debe poner dos veces active)
+php -v
+ls /etc/apache2/sites-enabled/
+grep Listen /etc/apache2/ports.conf
+
+Si tienes ya en uso el puerto 8080 usa el 8081
+
+Ahora ponemos sudo mariadb y dentro ponemos todo esto donde pone [(non)]
+
+CREATE DATABASE wordpress CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'wp_user'@'localhost' IDENTIFIED BY 'CAMBIA_ESTA_CLAVE';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wp_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+Explicacion de todo esto
+
+CREATE DATABASE                                  Crea la base de datos wordpress. utf8mb4 permite tildes, ñ y emojis.
+CREATE USER                                      Crea el usuario wp_user, que solo puede conectarse desde la
+propia máquina (localhost), con su contraseña.
+GRANT ALL PRIVILEGES ON wordpress.*              Le da todos los permisos, pero solo sobre la base `wordpress` (el .* significa "todas sus tablas").
+FLUSH PRIVILEGES                                 Aplica los cambios de permisos.
+
+Importante que cambies la contraseña al crear el usuario
+
+Para ver que lo hemos hecho bien y funciona  usamos estos comandos
+
+mariadb -u wp_user -p wordpress
+SHOW TABLES;
+EXIT;
+
+Ahora 
