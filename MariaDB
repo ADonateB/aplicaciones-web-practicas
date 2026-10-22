@@ -1,1 +1,67 @@
+Primero ponemos
+
+sudo apt update
+systemctl is-active apache2
+
+Y debe aparecer active
+
+Luego ponemos
+
+sudo apt install mariadb-server -y
+
+Y comprobamos la version con
+
+mariadb --version
+
+Usamos estos comandos para ver el estado de mariaDB y para que este activada
+
+sudo systemctl status mariadb
+systemctl is-enabled mariadb
+
+Y entramos en mariadb con el comando
+
+sudo mariadb
+
+Y para salir escribes exit
+
+sudo systemctl start mariadb         Arranca el servicio
+sudo systemctl stop mariadb          Detiene el servicio
+sudo systemctl restart mariadb       Reinicia el servicio
+sudo systemctl status mariadb        Muestra su estado
+sudo systemctl enable mariadb        Lo arranca automáticamente al encender el equipo
+
+Ahora vamos a instalar PHP con estos comandos
+
+sudo apt install php libapache2-mod-php php-mysql php-curl php-gd php-mbstring php-xml php-zip php-intl -y
+(Este es aparte) php -v y debe mostrar PHP 8.3
+
+Todos los comandos que acabamos de poner y para que sirven
+
+php El lenguaje PHP
+libapache2-mod-php Permite a Apache ejecutar PHP
+php-mysql Permite a PHP hablar con MariaDB (imprescindible)
+php-curl Conexiones a otros servidores (actualizaciones, plugins)
+php-gd Tratamiento de imágenes
+php-mbstring Manejo de textos con tildes y caracteres especiales
+php-xml Lectura y escritura de ficheros XML
+php-zip Instalación y actualización de plugins y temas
+php-intl Idiomas y formatos regionales
+
+Para comprobar que PHP puede hablar con mariadb usamos
+
+php -m | grep -i mysql
+
+Debe aparecer esto
+mysqli, mysqlnd y pdo_mysql
+
+Usamos esto para ver que apache ejecuta PHP
+
+echo '<?php phpinfo();' | sudo tee /var/www/html/info.php
+
+Y para ver que funcione tienes que ir a un navegador, y poner http://IP de tu servidor/info.php y debe salir una pagina morada
+
+Ahora borramos el ejemplo y vemos que no haya nada con estos comandos
+
+sudo rm /var/www/html/info.php
+ls /var/www/html
 
