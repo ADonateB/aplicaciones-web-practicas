@@ -15,7 +15,7 @@ Y comprobamos la version con
 
 ```
 mariadb --version
-``
+```
 Usamos estos comandos para ver el estado de mariaDB y para que este activada
 
 ``
