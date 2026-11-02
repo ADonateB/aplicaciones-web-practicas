@@ -61,7 +61,8 @@ echo '<?php phpinfo();' | sudo tee /var/www/html/info.php
 Y para ver que funcione tienes que ir a un navegador, y poner http://IP de tu servidor/info.php y debe salir una pagina morada
 
 Ahora borramos el ejemplo y vemos que no haya nada con estos comandos
-```
+
+````
 sudo rm /var/www/html/info.php
 ls /var/www/html
-```
+````
