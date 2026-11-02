@@ -13,15 +13,15 @@ sudo apt install mariadb-server -y
 
 Y comprobamos la version con
 
-```
+
 mariadb --version
-```
+
 Usamos estos comandos para ver el estado de mariaDB y para que este activada
 
-``
+
 sudo systemctl status mariadb
 systemctl is-enabled mariadb
-```
+
 Y entramos en mariadb con el comando
 
 sudo mariadb
