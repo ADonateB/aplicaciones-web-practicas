@@ -14,10 +14,10 @@ N.º  |  Afirmación  |  V/F  |
 
 Etiqueta  |  Efecto  |  Unidas|
 |---------|----------|--------|
-1.<mark>  |A. Texto tachado (precio antiguo de una oferta)
-2.<del>  |B. Texto remarcado, como con un fosforito
-3.<sub>  |C. Texto enfatizado (se ve como cursiva)
-4.<sup>  |D. Texto más pequeño que el normal
-5.<small>  |E. Texto en subíndice (como en H₂O)
-6.<em>  |F. Texto en superíndice (como en m²)
-7.<ins>  |G. Texto insertado (se ve subrayado)
+1.<mark>  |A. Texto tachado (precio antiguo de una oferta)  |A
+2.<del>  |B. Texto remarcado, como con un fosforito  |
+3.<sub>  |C. Texto enfatizado (se ve como cursiva)  |
+4.<sup>  |D. Texto más pequeño que el normal  |
+5.<small>  |E. Texto en subíndice (como en H₂O)  |
+6.<em>  |F. Texto en superíndice (como en m²)  |
+7.<ins>  |G. Texto insertado (se ve subrayado)  |
