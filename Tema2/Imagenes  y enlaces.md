@@ -107,11 +107,11 @@ A7. ¿Qué verá el usuario?
 "img src="gato.jpg" alt="Gato durmiendo" style="float: right;""
 "p"Se llama Miau y duerme catorce horas al día. Cuando está despierto, intenta apagar el router."/p"
 "a href="https://www.w3.org/" target="_blank"""img src="logo.png" alt="W3C"""/a"
-(a) La imagen del gato aparece a la derecha, a la altura del párrafo, y el texto queda a su izquierda rodeándola.
+a) La imagen del gato aparece a la derecha, a la altura del párrafo, y el texto queda a su izquierda rodeándola.
 
-(b) Si gato.jpg no existe, en su lugar sale el icono de imagen rota con el texto "Gato durmiendo" (el alt), también a la derecha.
+b) Si gato.jpg no existe, en su lugar sale el icono de imagen rota con el texto "Gato durmiendo" (el alt), también a la derecha.
 
-(c) Al hacer clic en el logo se abre https://www.w3.org/ en una pestaña nueva, porque el rótulo del enlace es la imagen y lleva target="_blank".
+c) Al hacer clic en el logo se abre https://www.w3.org/ en una pestaña nueva, porque el rótulo del enlace es la imagen y lleva target="_blank".
 
 (Comprobación: copia el código en un .html, ábrelo y pega aquí tu captura.)
 Nivel 2 · B1. Galería de tu setup
