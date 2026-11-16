@@ -113,10 +113,8 @@ b) Si gato.jpg no existe, en su lugar sale el icono de imagen rota con el texto 
 
 c) Al hacer clic en el logo se abre https://www.w3.org/ en una pestaña nueva, porque el rótulo del enlace es la imagen y lleva target="_blank".
 
-(Comprobación: copia el código en un .html, ábrelo y pega aquí tu captura.)
-Nivel 2 · B1. Galería de tu setup
+B1. Galería de tu setup
 " Todos los ejercicios van en la carpeta boletin_html2/, con las imágenes en boletin_html2/imagenes/.
-"
 " Muestra tres veces la misma imagen: a tamaño original; a 200 × 150 px con el atributo style; y a 200 × 150 con los atributos width y height. Todas con alt. Después rompe a propósito el nombre de una en el src y observa qué se muestra. Pregunta (en un comentario): ¿por qué se recomienda style frente a width y height?
 Código: b1.html
 ````
