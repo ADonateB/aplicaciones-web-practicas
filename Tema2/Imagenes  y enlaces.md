@@ -113,7 +113,7 @@ b) Si gato.jpg no existe, en su lugar sale el icono de imagen rota con el texto 
 
 c) Al hacer clic en el logo se abre https://www.w3.org/ en una pestaña nueva, porque el rótulo del enlace es la imagen y lleva target="_blank".
 
-B1. Galería de tu setup
+B1 Galería de tu setup
 " Todos los ejercicios van en la carpeta boletin_html2/, con las imágenes en boletin_html2/imagenes/.
 " Muestra tres veces la misma imagen: a tamaño original; a 200 × 150 px con el atributo style; y a 200 × 150 con los atributos width y height. Todas con alt. Después rompe a propósito el nombre de una en el src y observa qué se muestra. Pregunta (en un comentario): ¿por qué se recomienda style frente a width y height?
 Código: b1.html
@@ -150,7 +150,7 @@ Con style el tamaño pasa a ser CSS, como el resto del aspecto de la página. As
 Qué recordar
 - "img" no se cierra. Lleva src (ruta de la imagen) y alt (texto alternativo).
 - Con style se pone la unidad: width:200px;. Con los atributos, solo el número: width="200".
-Nivel 2 · B2. Perfil de una red social
+B2 Perfil de una red social
 " Todos los ejercicios van en la carpeta boletin_html2/, con las imágenes en boletin_html2/imagenes/.
 "
 " Un "h1" con el nombre del creador; una foto de perfil con borde de 5 px verde continuo y float: right; tres párrafos de biografía que rodeen la imagen; una segunda imagen con float: left y borde punteado azul; y una tercera con float: none y sin borde. Pregunta: ¿qué diferencia visual hay entre left, right y none?
@@ -182,7 +182,7 @@ Respuesta a la pregunta
 Qué recordar
 - Para que se note que el texto rodea la imagen, el párrafo tiene que ser más largo que la imagen. Si no, pon la imagen más pequeña con width.
 - Borde: border: grosor estilo color; → border:5px solid green;.
-Nivel 2 · B3. ¿Qué formato elijo?
+B3 ¿Qué formato elijo?
 " Todos los ejercicios van en la carpeta boletin_html2/, con las imágenes en boletin_html2/imagenes/.
 "
 " Escribe cinco párrafos, cada uno con una necesidad, e indica con "strong" el formato recomendado y su extensión: foto de vacaciones con muchos colores; logo con fondo transparente; icono nítido a cualquier tamaño; animación corta tipo meme; icono de la pestaña del navegador. Incluye al menos dos imágenes de formatos distintos.
@@ -218,7 +218,7 @@ Animación	GIF (.gif) o APNG (.apng)
 Icono de la pestaña (favicon)	ICO (.ico)
 
 
-Nivel 2 · B4. Mis enlaces favoritos
+B4 Mis enlaces favoritos
 " Tres enlaces a webs reales, cada uno en su "p": uno a https://www.w3.org/ en la misma ventana, uno a https://www.google.com/ en ventana nueva y uno a tu elección en ventana nueva. Cambia el color de uno con style. Pregunta: ¿de qué color se ve por defecto un enlace por visitar y uno ya visitado?
 Código: b4.html
 ````
@@ -246,7 +246,7 @@ sin target (o target="_self")	Se abre en la misma ventana
 target="_blank"	Se abre en una pestaña nueva
 
 
-Nivel 2 · B5. Enlaces con imagen
+B5 Enlaces con imagen
 " Todos los ejercicios van en la carpeta boletin_html2/, con las imágenes en boletin_html2/imagenes/.
 "
 " Un enlace cuyo rótulo es solo una imagen (a una web externa, en pestaña nueva) y otro cuyo rótulo es una imagen y un texto a la vez. En un comentario, identifica el destino, el rótulo y el objetivo de cada enlace.
@@ -343,6 +343,7 @@ Nivel 2 · B7. Tu propia chuleta
 
 chuleta.pdf va en la misma carpeta que chuleta.html.
 Código: chuleta.html
+````
 "!DOCTYPE html"
 "html lang="es""
 "head"
@@ -357,12 +358,14 @@ Código: chuleta.html
   "p""a href="https://developer.mozilla.org/es/docs/Web/HTML" target="_blank""Documentación de HTML en MDN"/a""/p"
 "/body"
 "/html"
+````
 Respuesta a la pregunta
 Si se borra chuleta.pdf, los dos enlaces locales dejan de funcionar: el navegador muestra un error de archivo no encontrado (en un servidor web, el error 404). El enlace externo a MDN sigue funcionando, porque no depende de tu carpeta.
 Qué recordar
 - Un enlace puede llevar a cualquier archivo, no solo a páginas: PDF, imágenes, documentos...
 - El navegador abre el PDF en su propio visor.
-Nivel 2 · Parte C. Práctica 2. Las estaciones (enlaces e imágenes)
+
+C Práctica 2. Las estaciones (enlaces e imágenes)
 " Crea una página estaciones.html con 4 imágenes de 300 × 300 píxeles que sean enlaces a otono.html, invierno.html, primavera.html y verano.html. Estas páginas también las creas tú, con la estructura base, un "h1" con el nombre de la estación, la foto en grande (600 × 600) y un enlace de vuelta a estaciones.html.
 "
 " - estaciones.html: "h1" con el texto ESTACIONES; después, un "h2" con el título de cada estación y su foto a 300 × 300 (no recortes la imagen). Cada foto lleva un borde de 5 píxeles de un color distinto. Al hacer clic en la foto se abre la página de la estación en la misma ventana.
@@ -481,9 +484,9 @@ Código: invierno.html
 "/html"
 ````
 
-# Nivel 3 · Parte A
+Nivel 3 Parte A
 
-## A1. Verdadero o falso
+Verdadero o falso
 
 | N.º | Afirmación | V / F | Respuesta y corrección |
 |---|---|---|---|
@@ -493,7 +496,7 @@ Código: invierno.html
 | 4 | "`<a href="guia.html#wifi>` abre `guia.html` directamente en la sección con ese "id"." | V | Abre la página y salta al elemento con "id="wifi"". |
 | 5 | "Los identificadores "Precios" y "precios" son el mismo." | F | Los "id" distinguen mayúsculas y minúsculas: son dos identificadores distintos. |
 
-## A2. ¿Qué pasa al hacer clic?
+A2 ¿Qué pasa al hacer clic?
 
 ````
 <!-- Caso A -->
