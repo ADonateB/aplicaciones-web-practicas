@@ -67,3 +67,8 @@ Actividad 6 Pon que le mostrara al usuario el navegador
 <hr>
 <h4>Próximo partido</h4>
 <p>Sábado a las 18:00</p>
+
+# Fin de la parte A
+
+
+# Parte C
