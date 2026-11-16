@@ -72,3 +72,24 @@ Actividad 6 Pon que le mostrara al usuario el navegador
 
 
 # Parte C
+### El texto tiene 8 párrafos y debe verse justificado. ¿Qué etiqueta usarás para cada uno y qué propiedad CSS consigue la justificación?
+
+Usaré un "p" para cada párrafo
+Usaré el text-align: justify
+
+### Los comentarios de los personajes irán en cursiva y los sentimientos, en color y negrita. ¿Qué etiquetas sirven para marcar solo una parte de un párrafo?
+
+Usaré "i" para que sea en cursiva
+Usaré "span" para cambiar el color
+Usaré "b" para poner el texto en negrita
+
+### Un mismo sentimiento debe tener siempre el mismo color. ¿Cómo evitas equivocarte? (Pista: haz antes una lista de sentimientos y colores.)
+
+Evito equivocarme mirando la lista y no repitiendo colores
+
+Sentimiento  |  Color
+-------------|-------
+Alegria | verde
+Tristeza | azul
+Enfado | rojo
+Miedo | morado
