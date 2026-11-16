@@ -10,3 +10,8 @@ N.º | Afirmación | V/F
 6 | "target=\"_blank\" hace que el enlace se abra en una ventana (pestaña) nueva." | V
 7 | "Por defecto, un enlace ya visitado se ve azul y uno por visitar, morado." | F
 8 | "Un enlace relativo escribe la URL completa, incluido el dominio." | F
+
+
+Elemento | Descripción
+---------|------------
+1. src | A. Crea un marcador (bookmark) dentro de la página
