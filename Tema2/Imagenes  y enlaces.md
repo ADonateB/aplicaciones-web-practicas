@@ -1,4 +1,7 @@
 # Imagenes y enlaces
+
+# Parte A
+
 A1. Verdadero o falso
 N.º |	V / F |	Respuesta y corrección
 ----|-------|-----------------------
@@ -112,6 +115,10 @@ a) La imagen del gato aparece a la derecha, a la altura del párrafo, y el texto
 b) Si gato.jpg no existe, en su lugar sale el icono de imagen rota con el texto "Gato durmiendo" (el alt), también a la derecha.
 
 c) Al hacer clic en el logo se abre https://www.w3.org/ en una pestaña nueva, porque el rótulo del enlace es la imagen y lleva target="_blank".
+
+# Fin de la parte A
+
+# Parte B
 
 B1 Galería de tu setup
 " Todos los ejercicios van en la carpeta boletin_html2/, con las imágenes en boletin_html2/imagenes/.
@@ -484,7 +491,9 @@ Código: invierno.html
 "/html"
 ````
 
-Nivel 3 Parte A
+# Fin de la parte B
+
+ #Nivel 3 Parte A
 
 Verdadero o falso
 
